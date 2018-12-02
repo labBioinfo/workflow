@@ -14,20 +14,26 @@ Python Libraries used:
 - pathlib
 - requests
 
-Use the following program run sequence:
 
-create_project_folders.sh make it executable and run it (chmod -x)
+Use the following program run sequence for sample database download and store:
 
-create_mongo_collections.sh make it executable and run it (chmod -x)
+1. create_project_folders.sh make it executable and run it (chmod +x)
 
-Import_data_AG.py
+2. create_mongo_collections.sh make it executable and run it (chmod +x)
 
-xml_AG_tocollection.py
+3. Import_data_AG.py
 
-Import_data_T2D.py
+4. xml_AG_tocollection.py
 
-xml_T2D_tocollection.py
+5. Import_data_T2D.py
 
-Import_data_IBD.py
+6. xml_T2D_tocollection.py
 
-xml_IBD_tocollection.py
+7. Import_data_IBD.py
+
+8. xml_IBD_tocollection.py
+
+
+Use the following program run sequence for kraken database download and store:
+
+1. create_kraken_greengenes.sh make it executable and run it (chmod +x)
