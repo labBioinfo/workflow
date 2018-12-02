@@ -4,6 +4,8 @@ mongodb version 4.0.3 or more
 
 python 3.5 or more
 
+please make sure that build-essential package is installed. (sudo apt install build-essential)
+
 Python Libraries used:
 - pymongo
 - BeautifulSoup
