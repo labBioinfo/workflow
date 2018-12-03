@@ -10,6 +10,8 @@ In any case, I plan to integrate the rest of the Database scripts once I have th
 Workflow organization (so far):
 
 workflow.sh - A basic navigation menu that calls the other script files
+
 workflow-database-install.sh - Creates the databases, sets up the kraken database for data input later
+
 workflow-basic-test.sh - Sort of kind of deprecated, it's just the first version of workflow.sh. This'll almost certainly get replaced later, but I kept it for nostalgia(?) purposes.
 
