@@ -13,5 +13,9 @@ workflow.sh - A basic navigation menu that calls the other script files
 
 workflow-database-install.sh - Creates the databases, sets up the kraken database for data input later
 
+workflow-install-python-dependencies.py - Installs Python dependencies that you don't have.
+
 workflow-basic-test.sh - Sort of kind of deprecated, it's just the first version of workflow.sh. This'll almost certainly get replaced later, but I kept it for nostalgia(?) purposes.
+
+
 
