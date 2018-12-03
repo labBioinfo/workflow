@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 
-wget http://github.com/DerrickWood/kraken2/archive/v2.0.7-beta.tar.gz 
-tar xvzf v2.0.7-beta.tar.gz  
+git clone https://github.com/labBioinfo/kraken2.git
 
 mkdir -p ~/metagenomics_LAB
 mkdir -p ~/metagenomics_LAB/kraken_DB
-cd kraken2-2.0.7-beta
+cd kraken2
 ./install_kraken2.sh ~/metagenomics_LAB/kraken_DB
-cd
 cd ~/metagenomics_LAB/kraken_DB
 ./kraken2-build --db GreenGenes --special greengenes
-
