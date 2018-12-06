@@ -15,7 +15,7 @@ Python Libraries used:
 - requests
 
 
-Use the following program run sequence for sample database download and store:
+Use the following program run sequence for sample database download and store: (please make sure to have the utilities.py with the import and download datasets.
 
 1. create_project_folders.sh make it executable and run it (chmod +x)
 
