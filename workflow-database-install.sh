@@ -10,7 +10,6 @@ echo "Let's hope this works boys"
     chmod +x Database/Import_IBD_metadata.py
     chmod +x Database/Import_T2D_metadata.py
     chmod +x Database/xml_AG_tocollection.py
-    python utilities.py
     echo "Creating project folders..."
     ./Database/create_project_folders.sh
     echo "Creating MongoDB collections..."

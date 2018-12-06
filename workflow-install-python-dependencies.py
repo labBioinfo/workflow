@@ -36,8 +36,3 @@ try:
 except ImportError:
  pipmain(['install','requests'])
 
-try:
- import utilities
-except ImportError:
- pipmain(['install','utilities'])
-
