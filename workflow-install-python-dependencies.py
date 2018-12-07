@@ -32,6 +32,11 @@ except ImportError:
  pipmain(['install','pathlib'])
 
 try:
+ import ete3
+except ImportError:
+ pipmain(['install','ete3'])
+
+try:
  import requests
 except ImportError:
  pipmain(['install','requests'])
