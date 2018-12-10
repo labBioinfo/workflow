@@ -9,7 +9,7 @@ gz = '.fastq.gz'
 xml = '.xml'
 
 folders = create_dir('PRJNA422434.txt', 'T2D')
-download_master_file('https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=PRJNA389280&result=read_run&fields=sample_accession,secondary_sample_accession,tax_id,scientific_name,fastq_ftp&download=txt', folders[0])
+download_master_file('https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=PRJNA422434&result=read_run&fields=sample_accession,secondary_sample_accession,tax_id,scientific_name,fastq_ftp&download=txt', folders[0])
 download_lists = read_master_file(folders[0], '\t')
 
 #download fastq and metadata
