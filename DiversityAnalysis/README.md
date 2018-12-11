@@ -1,4 +1,4 @@
-##**DIVERSITY ANALYSIS:  ALPHA & BETA DIVERSITY
+DIVERSITY ANALYSIS:  ALPHA & BETA DIVERSITY
 -------------------------------------------------
 
 **Download requirements:**
