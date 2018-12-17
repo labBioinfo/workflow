@@ -4,7 +4,7 @@
 
 #Workflow menu
 PS3='Welcome to the BioInfo lab project workflow! Please select an option: '
-options=("Install dependencies and download database files" "Run taxonomic analysis" "Run basic workflow test" "Quit")
+options=("Install dependencies and download database files" "Check and install Python dependencies" "Run basic workflow test" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -12,9 +12,15 @@ do
 	    chmod +x workflow-database-install.sh
 	    ./workflow-database-install.sh
             ;;
-        "Run taxonomic analysis")
-            echo "Error! Scripts not found!"
-	##### THIS IS WHERE THE KRAKEN ANALYSIS CODE GOES I HOPE #####
+        "Check and install Python dependencies")
+	    chmod +x workflow-create-conda-environments.sh
+	    chmod +x workflow-install-python-dependencies.py
+	    chmod +x workflow-conda-env-ete3.sh
+	    chmod +x workflow-conda-env-pandas.sh
+	    ./workflow-create-conda-environments.sh
+	    python workflow-install-python-dependencies.py
+	    ./workflow-conda-env-ete3.sh
+	    ./workflow-conda-env-pandas.sh	
             ;;
         "Run basic workflow test")
             chmod +x workflow-basic-test.sh

@@ -1,20 +1,16 @@
 import pymongo
-from pymongo import MongoClient
 import os
-from bs4 import BeautifulSoup as Soup
 import pandas as pd
+from pymongo import MongoClient
+from bs4 import BeautifulSoup as Soup
+from utilities import create_dir
+from utilities import is_number
+from utilities import save_error_file
 
 conn = MongoClient()
 collection = conn["labbioinfo"]["AG"]
-
-# change XML value from string to float if possible
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
+folders = create_dir('PRJEB11419.txt', 'AG')
+errors = []
 
 # XML tags without values
 notoktags = ['alcohol_types','allergic_to', 'mental_illness_type','non_food_allergies','specialized_diet','vioscreen_activity_level'
@@ -22,13 +18,10 @@ notoktags = ['alcohol_types','allergic_to', 'mental_illness_type','non_food_alle
       ,'vioscreen_gender','vioscreen_height','vioscreen_nutrient_recommendation','vioscreen_procdate','vioscreen_protocol'
       ,'vioscreen_recno','vioscreen_scf','vioscreen_scfv','vioscreen_srvid','vioscreen_started','vioscreen_subject_id'
       ,'vioscreen_time','vioscreen_user_id','vioscreen_visit','vioscreen_weight']
-home = str(Path.home())
-directory = home + '/metagenomics_LAB/AG/metadata/'
-errors = []
 
 
-for filename in os.listdir(directory):
-    fullname = os.path.join(directory, filename)
+for filename in os.listdir(folders[3]):
+    fullname = os.path.join(folders[3], filename)
     infile = open(fullname,"r")
     contents = infile.read()
     soup = Soup(contents,'xml')
@@ -61,8 +54,7 @@ for filename in os.listdir(directory):
         doc.update(sample_attr)
         collection.insert_one(doc)
     else:
+        infile.close()
         errors.append(filename)
 
-flawed_files = pd.DataFrame(errors)
-flawed_file_dir = directory + 'flawed_files.csv'
-flawed_files.to_csv(path_or_buf=flawed_file_dir, sep=';', header=False,index=False)
+save_error_file(errors, folders[3])
