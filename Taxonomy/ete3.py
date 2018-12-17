@@ -1,6 +1,6 @@
 from ete3 import NCBITaxa
 ncbi = NCBITaxa()
-#ncbi.update_taxonomy_database()
+ncbi.update_taxonomy_database()
 
 #format=1 aparecer nomes dos nodes interiores
 infile2 = open("colunasfinal", 'r')
