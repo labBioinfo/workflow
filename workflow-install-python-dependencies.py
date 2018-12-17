@@ -12,11 +12,6 @@ except ImportError:
  pipmain(['install','pymongo'])
 
 try:
- import pandas
-except ImportError:
- pipmain(['install','pandas'])
-
-try:
  import bs4
 except ImportError:
  pipmain(['install','beautifulsoup4'])
@@ -32,12 +27,17 @@ except ImportError:
  pipmain(['install','pathlib'])
 
 try:
- import ete3
-except ImportError:
- pipmain(['install','ete3'])
-
-try:
  import requests
 except ImportError:
  pipmain(['install','requests'])
+
+#try:
+# import ete3 #Mutually exclusive with pandas#
+#except ImportError:
+# pipmain(['install','ete3'])
+
+#try: #Mutually exclusive with ete3#
+# import pandas
+#except ImportError:
+# pipmain(['install','pandas'])
 

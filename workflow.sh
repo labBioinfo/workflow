@@ -13,8 +13,14 @@ do
 	    ./workflow-database-install.sh
             ;;
         "Check and install Python dependencies")
+	    chmod +x workflow-create-conda-environments.sh
 	    chmod +x workflow-install-python-dependencies.py
-	    python workflow-install-python-dependencies.py	
+	    chmod +x workflow-conda-env-ete3.sh
+	    chmod +x workflow-conda-env-pandas.sh
+	    ./workflow-create-conda-environments.sh
+	    python workflow-install-python-dependencies.py
+	    ./workflow-conda-env-ete3.sh
+	    ./workflow-conda-env-pandas.sh	
             ;;
         "Run basic workflow test")
             chmod +x workflow-basic-test.sh
