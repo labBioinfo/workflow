@@ -13,8 +13,7 @@ infile2.close()
 t = ncbi.get_topology(idtaxa, intermediate_nodes=True)
 
 treefinal = t.get_ascii(attributes=["sci_name"])
-#print( t.get_cached_content(store_attr="name"))
-#print(t.children[0].children[1])
+
 
 		
 with open("ete3tree", 'w') as tree:
