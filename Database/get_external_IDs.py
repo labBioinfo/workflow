@@ -2,6 +2,7 @@
 
 import os
 import pymongo
+from pymongo import MongoClient
 
 # create a localhost connection
 client = pymongo.MongoClient()
