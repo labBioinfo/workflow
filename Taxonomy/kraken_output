@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+for file in ../fastq/*; do
+  file1=${file##*/}
+  file2=${file1%%.*}
+  ./kraken2 --db kraken_green --threads 4 $file --report ../reports/${file2}.output
+  echo ${file2}.output >> outputreport.txt
+done
