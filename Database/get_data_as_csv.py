@@ -31,10 +31,10 @@ os.makedirs('data', exist_ok=True)
 with open('data/gut.csv', 'w') as fs:
 	print('Writing to {}...'.format('data/gut.csv'))
 	cursor = AG.find({}, projection)
-    # write head
-    writer = csv.DictWriter(fs, fields)
-    writer.writeheader()
-    print('Wrote header')
+	# write head
+	writer = csv.DictWriter(fs, fields)
+	writer.writeheader()
+	print('Wrote header')
 	for doc in cursor:
 		writer.writerow(doc)
 	print('Wrote {} documents.'.format(cursor.count()))
