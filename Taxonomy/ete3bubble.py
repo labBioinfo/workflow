@@ -1,4 +1,3 @@
-
 from ete3 import NCBITaxa
 ncbi = NCBITaxa()
 from ete3 import Tree, TreeStyle, NodeStyle, faces, AttrFace, CircleFace
@@ -11,7 +10,7 @@ for lines in infile:
 
 infile.close()
 
-infile2 = open("colunasfinal", 'r')
+infile2 = open("colunasfinal.txt", 'r')
 for lines in infile2:
 	idtaxa = lines.strip().split(",")
 	idtaxa = list(map(int,idtaxa))
@@ -33,41 +32,47 @@ def layout(node):
         # And place as a float face over the tree
         faces.add_face_to_node(C, node, 0, position="float")
 
-def get_example_tree():
-	#weigh = open("population.txt", 'r')
+
+def buble_tree():
+	built = False
+	while not built:
+		try:
     
-	# Random tree
-	t = ncbi.get_topology(idtaxa, intermediate_nodes=True)
+			# Random tree
+			t = ncbi.get_topology(idtaxa, intermediate_nodes=True)
 
-    # Some random features in all nodes 
-	for node,weigh in zip(t,weighs):
-		
-		node.add_features(weight=weigh)
+			# Some random features in all nodes 
+			for node,weigh in zip(t,weighs):
 
-    # Create an empty TreeStyle
-	ts = TreeStyle()
+				node.add_features(weight=weigh)
 
-    # Set our custom layout function
-	ts.layout_fn = layout
+			# Create an empty TreeStyle
+			ts = TreeStyle()
 
-    # Draw a tree
-	ts.mode = "c"
+			# Set our custom layout function
+			ts.layout_fn = layout
 
-    # We will add node names manually
-	ts.show_leaf_name = True
-    # Show branch data
-	ts.show_branch_length = True
-	ts.show_branch_support = True
+			# Draw a tree
+			ts.mode = "c"
 
-	return t, ts
+			# We will add node names manually
+			ts.show_leaf_name = True
+			# Show branch data
+			ts.show_branch_length = True
+			ts.show_branch_support = True
+				
+			return t, ts
+			built = True
+		except KeyError as e:
+			taxid_not_found = int(e.args[0])
+			idtaxa.remove(taxid_not_found)
+			print("the following IDs were not found in NCBI taxonomy database:" + str(taxid_not_found))
+			pass
+			
 
 
 if __name__ == "__main__":
-	t, ts = get_example_tree()
+	t, ts = buble_tree()
 
-	t.render("bubble_map.png", w=600, dpi=300, tree_style=ts)
-	
-	
-
-
+	t.render("bubble_map.png", w=3000, dpi=2000, tree_style=ts)
 	
