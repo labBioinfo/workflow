@@ -9,6 +9,6 @@ DIVERSITY ANALYSIS:  ALPHA & BETA DIVERSITY
       - Vegan version 2.5-3 (https://cran.r-project.org/web/packages/vegan/index.html)
       - Microbiome version 3.5 (https://www.bioconductor.org/packages/release/bioc/html/microbiome.html)
 
-    **For Beta Diversity:** Bray-curtis distances; Euclidean distances; Chi-square distances
+    **For Beta Diversity:** Bray-curtis distances; Euclidean distances
     
     Question: Are there relevant differences between microbial species between samples collected from different body sites?
