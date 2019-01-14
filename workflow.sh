@@ -22,9 +22,9 @@ do
 	    ./workflow-conda-env-ete3.sh
 	    ./workflow-conda-env-pandas.sh	
             ;;
-        "Run basic workflow test")
-            chmod +x workflow-basic-test.sh
-	    ./workflow-basic-test.sh
+        "Taxonomy report")
+            chmod +x workflow-taxonomy.sh #Kraken_output, colunas, ete3bubble, ete3tree, in that order
+	    ./workflow-taxonomy.sh
             ;;
         "Quit")
             break
