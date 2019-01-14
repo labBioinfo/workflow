@@ -23,7 +23,7 @@ do
 	    ./workflow-conda-env-pandas.sh	
             ;;
         "Taxonomy report")
-            chmod +x workflow-basic-test.sh #Kraken_output, colunas, ete3bubble, ete3tree, in that order
+            chmod +x workflow-taxonomy.sh #Kraken_output, colunas, ete3bubble, ete3tree, in that order
 	    ./workflow-taxonomy.sh
             ;;
         "Quit")
