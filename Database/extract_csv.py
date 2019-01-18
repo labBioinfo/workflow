@@ -16,6 +16,7 @@ def main():
 	parser.add_argument('--db', default='labbioinfo', help='the database name to extract data from (default: labbioinfo)')
 	parser.add_argument('--table', default='AG', help='the table name to extract data from (default: AG)')
 	parser.add_argument('--no_header', action='store_true', help='skips writing the header with the column names')
+	parser.add_argument('--filter', nargs='+', help='only grabs documents with matching field values (ex: --filter name=alex would only grab documents where the name field equals alex)')
 	parser.add_argument('-o', '--output_file', metavar='FILE', default='out.csv', help='where to store the output (default: out.csv)')
 
 	args = parser.parse_args()
