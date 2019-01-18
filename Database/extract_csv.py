@@ -7,6 +7,7 @@ Will later be updated to be more dynamic, but its hardcoded for now
 import argparse
 import csv
 import os
+import sys
 from pymongo import MongoClient
 
 def main():
@@ -16,7 +17,7 @@ def main():
 	parser.add_argument('--db', default='labbioinfo', help='the database name to extract data from (default: labbioinfo)')
 	parser.add_argument('--table', default='AG', help='the table name to extract data from (default: AG)')
 	parser.add_argument('--no_header', action='store_true', help='skips writing the header with the column names')
-	parser.add_argument('--filter', nargs='+', help='only grabs documents with matching field values (ex: --filter name=alex would only grab documents where the name field equals alex)')
+	parser.add_argument('-x', '--filter', help='only grabs documents with matching field values (ex: --filter name=alex would only grab documents where the name field equals alex)')
 	parser.add_argument('-o', '--output_file', metavar='FILE', default='out.csv', help='where to store the output (default: out.csv)')
 
 	args = parser.parse_args()
@@ -29,6 +30,15 @@ def main():
 
 	# select the collection
 	table = db[args.table]
+
+	# test the connection
+	try:
+		print('Looking for a mongo connection...')
+		client.server_info()
+		print('Connected')
+	except:
+		print('Cannot connect to a mongo database with the given parameters!')
+		sys.exit(1)
 
 	# list of fields to grab -- default to all
 	fields = args.fields
@@ -46,10 +56,17 @@ def main():
 	if dir_path:
 		os.makedirs(dir_path, exist_ok=True)
 
+	query = {}
+	# figure out the query based on the filter
+	if args.filter:
+		kvp = args.filter.split('=')
+		if len(kvp) > 1:
+			query[kvp[0]] = kvp[1]
+
 	# write selected fields to a csv file
 	with open(args.output_file, 'w') as fs:
 		print('Writing to {}...'.format(args.output_file))
-		cursor = table.find({}, projection)
+		cursor = table.find(query, projection)
 		# write head - if no fields were selected, this is determinted by
 		# the first document's properties
 		firstDoc = cursor.next()
