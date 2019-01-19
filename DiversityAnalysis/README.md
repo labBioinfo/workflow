@@ -2,8 +2,9 @@ DIVERSITY ANALYSIS:  ALPHA & BETA DIVERSITY
 -------------------------------------------------
 
 **Download for create and merge biom tables**
-  - Qiime 2 (http://qiime.org/install/index.html)
-
+  - Qiime version 1.9 (http://qiime.org/install/install.html)
+  - Kraken-biom version 1.0.1 (https://bioconda.github.io/recipes/kraken-biom/README.html)
+  
 **Download for Statistical Analysis**
   - R version 3.5.2 (https://www.r-project.org/)
   - R Studio (optional) https://www.rstudio.com/
