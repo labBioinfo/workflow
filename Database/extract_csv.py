@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 '''
-This script grabs data from a mongo db and saves it in a csv file
-Will later be updated to be more dynamic, but its hardcoded for now
+Grabs data from a mongo db and saves it in a csv file
 '''
 
 import argparse
