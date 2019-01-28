@@ -1,0 +1,509 @@
+---
+title: "Laboratory Project - Final Report"
+subtitle: "https://github.com/labBioinfo/workflow"
+author: "Henrique Costa, João Raimundo, João Rato, Pedro Gonçalves, Rodrigo Rente,"
+date: "January 27, 2019"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+# Introduction
+
+This report serves to describe all the process involved in our project workflow.
+
+The objective is to run the various analysis scripts automatically, and, ideally, quickly.
+
+The project starts to create a database in MongoDB with the selection of the samples to analyze from americangut database.
+
+The samples was provided properly treated and clean, ready to be analyzed.
+
+
+Download and Store requirements:
+
+    mongodb version 4.0.3 or more
+
+    python 3.5 or more
+
+please make sure that build-essential package is installed. (sudo apt install build-essential)
+
+Python Libraries used:
+
+    pymongo
+    BeautifulSoup
+    Pandas
+    os
+    pathlib
+    requests
+
+Use the following program run sequence for sample database download and store: (please make sure to have the utilities.py with the import and download datasets.
+
+    create_project_folders.sh make it executable and run it (chmod +x)
+
+    create_mongo_collections.sh make it executable and run it (chmod +x)
+
+    Import_data_AG.py
+
+    xml_AG_tocollection.py
+
+    Import_data_T2D.py
+
+    xml_T2D_tocollection.py
+
+    Import_data_IBD.py
+
+    xml_IBD_tocollection.py
+
+Use the following program run sequence for kraken database download and store:
+
+    create_kraken_greengenes.sh make it executable and run it (chmod +x)
+
+
+
+# Taxonomy 
+
+In this section, we will describe how we extract the taxonomy information from our samples.
+
+In total we have 16709 samples acquired and stored in our mongoDB database.
+
+The assign taxonomy was made with Kraken and greengenes database.
+
+For the phylogenitics analysis with trees, we merge all the Kraken reports in one single file.
+
+It was done with ete3tree running in python version 3.7 .
+
+
+# Diversity Analysis 
+
+To analyse the composition of our microbiome we proceed with the Alpha and Beta analysis.
+
+To start we create a small dataset with 50 samples, 10 from each cavity : eye, nasopharyngeal, oral, skin and vaginal.
+This dataset only have 50 samples due to computacional issues.
+
+After the selection, we transforme the kraken reports in biom tables. Then we merge all of them in one single otu table with qiime 1.9 and create a mapfile with the metadata provided.
+
+
+Download for create and merge biom tables
+
+    Qiime version 1.9 (http://qiime.org/install/install.html)
+    Kraken-biom version 1.0.1 (https://bioconda.github.io/recipes/kraken-biom/README.html)
+    
+Script:
+
+Convert kraken reports in biom tables:
+
+      for file in /path_that_contais_reports/*; do kraken-biom $file --output_fp $file.biom; done
+
+      optional: --fmt json or tsv
+
+      Merge otus tables in Qiime 1.9:
+
+     merge_otu_tables.py -i input_table1.biom , input_table2.biom -o merged_table.biom
+
+Download for Statistical Analysis
+
+     R version 3.5.2 (https://www.r-project.org/)
+
+     R Studio (optional) https://www.rstudio.com/
+
+Packages for R:
+     
+        Biomformat version 3.8 (https://www.bioconductor.org/packages/release/bioc/html/biomformat.html)
+        Phyloseq version 3.5 (https://www.bioconductor.org/packages/release/bioc/html/phyloseq.html)
+
+For Beta Diversity: Bray-curtis distances
+
+# Question: Are there relevant differences between microbial species between samples collected from different body sites?
+
+
+# Community Composition
+
+To analyse the composition of our samples we use the microbiome 1.2.1 package for R (in this case we use Rstudio):
+
+https://microbiome.github.io/microbiome/ and Phyloseq 3.5 .
+
+This component will resort to bar plots and heatmaps to provide attractive results.
+
+
+# Analysis
+
+We start to import the packges that we will need.
+
+```{r, echo = FALSE}
+# Import Packages
+library("biomformat")
+library("phyloseq")
+library("ggplot2")
+library("hrbrthemes")
+library("microbiome")
+library("RColorBrewer")
+library("tinytex")
+library("ape")
+```
+
+We will start to show the phylogenetic composition of our samples with a tree.
+So we import in biom format all the samples in our database but merged.
+
+```{r}
+#Import Dataset | All Samples | Used for plot the general tree
+
+tree_path <- "/home/ray2g/kraken.biom"
+tree_biom <- read_biom(tree_path)
+samples <- import_biom(tree_biom, parseFunction = parse_taxonomy_greengenes)
+```
+
+Then we do the same but only for the small dataset with the 50 samples to analyse by sample location and merged with the created mapfile.
+
+```{r}
+# Import Dataset | Sample Location | 50 samples
+path <- "/home/ray2g/merged_table.biom"
+
+# Read biom table from path
+table <- read_biom(path)
+names(table)
+
+# Import biom table in phyloseq
+physeq <- import_biom(table, parseFunction = parse_taxonomy_greengenes)
+tax_table <- tax_table(physeq)[, 1:7]
+rank_names(physeq)
+sample_names(physeq)
+
+# Import map file 
+mapfile <- read.table('/home/ray2g/mapfile.txt', sep=',', comment='', head=T, row.names=1, strip.white = TRUE)
+rownames(mapfile)
+
+# Check if the sample names are the same as the file file
+all(rownames(mapfile) %in% sample_names(physeq))
+
+# Import map file for phyloseq
+sample_data <- sample_data(mapfile)
+
+# Random Tree | Samples Location
+tree_random <- rtree(ntaxa(physeq), rooted=TRUE, tip.label=taxa_names(physeq))
+
+# Merged biom table and map file
+physeq2 <- merge_phyloseq(sample_data, physeq, tree_random )
+#sample_variables(physeq2)
+
+physeq2
+
+# Permutacion
+pseq <- physeq2
+```
+
+In this point we proceed with the sumarization of our samples.
+
+
+```{r}
+#Sumarization
+
+summarize_phyloseq(pseq)
+nsamples(pseq)
+ntaxa(pseq)
+#top_taxa(pseq, n = 10)
+meta <- meta(pseq)
+meta
+```
+
+The creation of the trees for all samples and the for each sample location.
+
+```{r}
+# Tree code | All samples
+
+OTU <- otu_table(samples)           
+TAX <- tax_table(samples)
+
+tree2 <- (phyloseq(OTU,TAX))
+
+# Create random tree
+random_tree = rtree(ntaxa(tree2), rooted=TRUE, tip.label=taxa_names(tree2))
+
+# Merge phyloseq objects
+tree3 <- merge_phyloseq(tree2, random_tree) # merge phyloseq objects
+
+# Top 50
+treetop50 <- names(sort(taxa_sums(tree3), decreasing = TRUE))[1:50]
+tree_top50 <- transform_sample_counts(tree3, function(OTU) OTU/sum(OTU))
+tree.top50 <- prune_taxa(treetop50, tree_top50)
+
+# Plot tree | All Samples
+plot_tree_all <- plot_tree(tree.top50, label.tips="taxa_names", ladderize="left", plot.margin=0.3)
+
+# Random Tree | Samples Location
+tree_random <- rtree(ntaxa(physeq), rooted=TRUE, tip.label=taxa_names(physeq))
+
+# Top 20
+top20 <- names(sort(taxa_sums(pseq), decreasing = TRUE))[1:20]
+pseq_top20 <- transform_sample_counts(pseq, function(OTU) OTU/sum(OTU))
+pseq.top20 <- prune_taxa(top20, pseq_top20)
+
+# Plot tree for sample location
+plot_tree_sl_genus <- plot_tree(pseq.top20, color="Genus", shape="Sample_location", label.tips="taxa_names", ladderize="right", plot.margin=0.3)
+
+plot_tree_all
+plot_tree_sl_genus
+```
+
+# Alpha Diversity with the 50 samples, 10 for each cavity.
+
+```{r}
+# Count
+samplesum <- data.frame(sum= sample_sums(physeq2))
+
+#Rarefation samples(optional)
+ps.rarefied = rarefy_even_depth(physeq2, rngseed=1, sample.size=0.9*min(sample_sums(physeq2)), replace=F)
+
+#Abundance
+otu_tab <- t(abundances(pseq)) 
+
+ps_abundance <- vegan::rarecurve(otu_tab, step = 50, label= FALSE, sample = min(rowSums(otu_tab), col = "blue", cex = 0.6))
+
+# Distribution
+distribution_sample <- ggplot(samplesum, aes(x=sum)) + geom_histogram(color="black", fill="indianred", binwidth = 2500) +
+ggtitle("Distribution of sample depth") + xlab("Read counts") + theme(axis.title.y = element_blank())
+
+distribution_sample
+
+#Taxa Prevalence
+taxa_prev_phylum <- plot_taxa_prevalence(ps.rarefied, "Phylum")
+taxa_prev_class <- plot_taxa_prevalence(ps.rarefied, "Class")
+
+taxa_prev_phylum
+taxa_prev_class 
+```
+
+
+
+![](/home/ray2g/Documents/Laboratory_Project_Final_Report/shannon_index.png)
+
+
+
+
+![alpha_diversity](/home/ray2g/Documents/Laboratory_Project_Final_Report/alpha_diversity.png)
+
+
+# Beta Analysys for Samples Location.
+
+```{r}
+
+
+#Set the variables of the samples to use in the colors of the plots
+Sample_location <- factor(sample_data(physeq2)$Sample_location,levels = c("eye", "nasopharyngeal", "oral", "skin", "vaginal"))
+
+# Calculate bray-curtis distance for beta diversity
+distbc <- distance(physeq2, method = "bray")
+ordBC <- ordinate(physeq = physeq2, method = "PCoA", distance = distbc)
+
+# Rarefation samples(optional)
+ps.rarefied = rarefy_even_depth(physeq2, rngseed=1, sample.size=0.9*min(sample_sums(physeq2)), replace=F)
+
+
+#Plot for beta diversity (with Bray-Curtis distance)
+plot_ordination(physeq = physeq2,ordination = ordBC,color = Sample_location) + geom_point(aes(color = Sample_location), alpha = 0.7, size = 4)
+
+population_density <- plot_landscape(ps.rarefied, "NMDS", "bray", col = "Sample_location") + labs(title = paste("NMDS / Bray-Curtis"))
+
+population_density + scale_color_brewer(palette= "Dark2") + scale_fill_gradient(low = "#e0ecf4", high = "#6e016b") + theme_classic()
+```
+
+# Definitions of Tops
+
+```{r}
+
+# Tops
+
+top30<- names(sort(taxa_sums(pseq), decreasing = TRUE))[1:30]
+pseq_top30 <- transform_sample_counts(pseq, function(OTU) OTU/sum(OTU))
+pseq.top30 <- prune_taxa(top30, pseq_top30)
+
+top50<- names(sort(taxa_sums(pseq), decreasing = TRUE))[1:50]
+pseq_top50 <- transform_sample_counts(pseq, function(OTU) OTU/sum(OTU))
+pseq.top50 <- prune_taxa(top50, pseq_top50)
+
+top100<- names(sort(taxa_sums(pseq), decreasing = TRUE))[1:100]
+pseq_top100 <- transform_sample_counts(pseq, function(OTU) OTU/sum(OTU))
+pseq.top100 <- prune_taxa(top100, pseq_top100)
+
+# Head Taxa
+
+head(get_taxa_unique(pseq.top20, "Kingdom"))
+head(get_taxa_unique(pseq.top20, "Phylum"))
+head(get_taxa_unique(pseq.top20, "Class"))
+head(get_taxa_unique(pseq.top20, "Order"))
+head(get_taxa_unique(pseq.top20, "Family"))
+head(get_taxa_unique(pseq.top20, "Genus"))
+head(get_taxa_unique(pseq.top20, "Species"))
+```
+
+# Creation and Vizualization of barplots for each location
+
+```{r}
+# BarPlot for each location
+
+plot_bar(pseq.top20, fill = "Kingdom") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+plot_bar(pseq.top20, fill = "Phylum") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+plot_bar(pseq.top20, fill = "Class") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+plot_bar(pseq.top20, fill = "Order") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+plot_bar(pseq.top20, fill = "Family") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+plot_bar(pseq.top20, fill = "Genus") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+plot_bar(pseq.top20, fill= "Species") + facet_wrap(~Sample_location, scales = "free_x", nrow = 1)
+```
+
+# Creation and Vizualization of barplots for all the samples with our dataset, the 50 samples one.
+
+```{r}
+# BarPlot 
+
+plot_bar(pseq.top20, fill="Kingdom")
+plot_bar(pseq.top20, fill="Phylum")
+plot_bar(pseq.top20, fill="Class")
+plot_bar(pseq.top20, fill="Order")
+plot_bar(pseq.top20, fill="Family")
+plot_bar(pseq.top20, fill="Genus")
+plot_bar(pseq.top20, fill="Species")
+
+```
+
+At the start of this analysis composition report we used the plot_composition function from microbiome package but beyond show the otu names by ids, it dont assume the taxonomic level for each domain.
+
+So i let them in the report to analyse which may not have worked correctly.
+
+Chatting in the forums it was said that
+
+" The plot_composition returns a ggplot object. My suggestion is to use standard ggplot utilities for more fine-tuned figure manipulation. The plot_composition and other similar functions in the microbiome pkg are designed to facilitate fast data exploration. Fine-tuning needs are so variable and user dependent that it is not efficient to try to implement most of those solutions in the function itself since manipulation tools for ggplot objects exist already."
+
+ggplot did not recognize the sample type provided so i dont proceed.
+
+
+```{r}
+# Plot Composition for sample location
+
+psl_composition_Kingdom <- plot_composition(pseq.top20, taxonomic.level = "Kingdom", average_by = "Sample_location", transform = "compositional") +
+  labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Kingdom") +
+  geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Phylum <- plot_composition(pseq.top20, taxonomic.level = "Phylum", average_by = "Sample_location", transform = "compositional") +
+  labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Phylum") +
+  geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Class <- plot_composition(pseq.top20, taxonomic.level = "Class", average_by = "Sample_location", transform = "compositional") +
+  labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Class") +
+  geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Order <- plot_composition(pseq.top20, taxonomic.level = "Order", average_by = "Sample_location", transform = "compositional") +
+  labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Order") +
+  geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Family <- plot_composition(pseq.top20, taxonomic.level = "Family", average_by = "Sample_location", transform = "compositional") +
+     labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Family") +
+     geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Genus <- plot_composition(pseq.top20, taxonomic.level = "genus", average_by = "Sample_location", transform = "compositional") +
+  labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Genus") +
+  geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Species <- plot_composition(pseq.top20, taxonomic.level = "genus", average_by = "Sample_location", transform = "compositional") +
+  labs(x = "Sample Location", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Species") +
+  geom_point(color="black", position="jitter", size=1) + theme_classic()
+
+psl_composition_Kingdom
+psl_composition_Phylum
+psl_composition_Class
+psl_composition_Order
+psl_composition_Family
+psl_composition_Genus
+psl_composition_Species
+```
+
+
+
+```{r}
+# BarPlot
+
+bp_Kingdom <-plot_composition(pseq.top20,
+                             taxonomic.level = "Kigdom", plot.type = "barplot") + 
+  labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Kingdom") + 
+  theme_ipsum(grid="Y")+ theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+bp_Phylum <-plot_composition(pseq.top20,
+                             taxonomic.level = "Phylum", plot.type = "barplot") +
+  labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Phylum") + 
+  theme_ipsum(grid="Y") + theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+bp_Class <-plot_composition(pseq.top20,
+                             taxonomic.level = "Class", plot.type = "barplot") +
+  labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Class") + 
+  theme_ipsum(grid="Y") + theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+bp_Order <-plot_composition(pseq.top20,
+                             taxonomic.level = "Order", plot.type = "barplot") +
+  labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Order") + 
+  theme_ipsum(grid="Y")+ theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+bp_Family <-plot_composition(pseq.top20,
+                             taxonomic.level = "Family", plot.type = "barplot") + 
+                             labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Family") + 
+                             theme_ipsum(grid="Y")+ theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+bp_Genus <- plot_composition(pseq.top20,
+                      taxonomic.level = "Genus", plot.type = "barplot") +
+                      labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Genus") + 
+                      theme_ipsum(grid="Y")+ theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+bp_Species <- plot_composition(pseq.top20,
+                                taxonomic.level = "Species", plot.type = "barplot") + 
+                                labs(x = "Samples", y = "Relative abundance (%)", title = "Relative abundance data", subtitle = "Species") + 
+                                theme_ipsum(grid="Y")+ theme_grey() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+bp_Kingdom
+bp_Phylum
+bp_Class
+bp_Order
+bp_Family
+bp_Genus
+bp_Species
+```
+
+# HeatMaps
+
+
+
+![HeatMap | Kingdom - Bacteria ](/home/ray2g/Documents/projeto_analise_taxonomica/Rplot12.png)
+
+```{r}
+# Heatmap
+
+#k_bacteria <- subset_taxa(pseq, Kingdom =="Bacteria")
+#heatmap(otu_table(k_bacteria), scale="column", col = terrain.colors(256), main="Heatmap | Kingdom |Bacteria")
+
+# Agregate by Domain
+pseq_kingdom <- aggregate_taxa(pseq, "Kingdom")
+pseq_phylum <- aggregate_taxa(pseq, "Phylum")
+pseq_class <- aggregate_taxa(pseq, "Class")
+pseq_order <- aggregate_taxa(pseq, "Order")
+pseq_family <- aggregate_taxa(pseq, "Family") 
+pseq_genus <- aggregate_taxa(pseq, "Genus")
+pseq_Species <- aggregate_taxa(pseq, "Species")
+
+plot_heatmap(pseq_kingdom, taxa.label="Kingdom", title = " HeatMap | Kingdom")
+plot_heatmap(pseq_phylum, taxa.label="Phylum", title = " HeatMap | Phylum")
+plot_heatmap(pseq_class, taxa.label="Class", title = " HeatMap | Class")
+plot_heatmap(pseq_order, taxa.label="Order", title = " HeatMap | Order")
+plot_heatmap(pseq_family, taxa.label="Family", title = " HeatMap | Family")
+plot_heatmap(pseq_genus, taxa.label="Genus", title = " HeatMap | Genus")
+plot_heatmap(pseq_Species, taxa.label="Species", title = " HeatMap | Species")
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+
+```
