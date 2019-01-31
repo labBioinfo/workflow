@@ -1,0 +1,11 @@
+Convert kraken reports in biom tables:
+
+  for file in /path_that_contais_reports/*; do kraken-biom $file --output_fp $file.biom; done
+
+optional: 
+ 
+ --fmt json, tsv, hdf5 #standard
+
+Merge otus tables in Qiime 1.9:
+
+  merge_otu_tables.py -i input_table1.biom , input_table2.biom -o merged_table.biom
