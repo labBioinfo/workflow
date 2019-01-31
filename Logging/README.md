@@ -10,3 +10,6 @@ Used Package with the respective versions:
     bindrcpp_0.2.2        ape_5.2            tinytex_0.9       
     RColorBrewer_1.1-2    microbiome_1.2.1   hrbrthemes_0.5.0.1
     ggplot2_3.1.0         phyloseq_1.24.2    biomformat_1.8.0  
+    
+  
+https://labbioinfo.github.io/workflow
