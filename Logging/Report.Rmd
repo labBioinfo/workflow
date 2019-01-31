@@ -130,7 +130,7 @@ This component will resort to bar plots and heatmaps to provide attractive resul
 
 We start to import the packges that we will need.
 
-```{r, echo = FALSE}
+```{r}
 # Import Packages
 library("biomformat")
 library("phyloseq")
